@@ -1,7 +1,8 @@
 # ShopProject
 # Project Name
 
-Mô tả ngắn gọn về dự án (1–3 câu).
+đây là dự án tôi dùng để luyện tay backend nodejs, tự học tự phát triển, 
+có tham khảo Gemini để xây Front end phục vụ quá trình trải nghiệm
 
 ## Features
 
@@ -19,14 +20,17 @@ Mô tả ngắn gọn về dự án (1–3 câu).
 - JWT
 
 ### Frontend 
-- HandleBars
-- Promt AI Gemini
+- giao diện được hỗ trợ viết bằng AI (Gemini) dựa trên Handlebars
+
+###database
+
+mysql -u root -p < schema.sql
 
 ## Installation
 
 ```bash
-git clone https://github.com/yourname/project.git
-cd project
+git clone https://github.com/Anonymous-204/ShopProject.git
+cd shop
 npm install
 ```
 
@@ -37,6 +41,9 @@ Tạo file `.env`:
 .env
 PORT=3000
 DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=shop_db
 SECRET_KEY=mysupersecretkey123
 
 
@@ -96,7 +103,40 @@ pro/
 
 ## API Documentation
 
-- Swagger: `http://localhost:3000/api`
+### Auth — `/api/auth`
+- POST `/signup` — Đăng ký tài khoản
+- POST `/signin` — Đăng nhập
+- POST `/signout` — Đăng xuất
+- POST `/refreshToken` — Làm mới access token
+- PATCH `/change` — Đổi mật khẩu
+
+### User — `/api/user` (yêu cầu đăng nhập)
+- GET `/me` — Lấy thông tin user hiện tại
+- GET `/profile` — Lấy thông tin chi tiết hồ sơ
+- PATCH `/edit` — Cập nhật hồ sơ
+
+### Product — `/api/product`
+- GET `/search` — Tìm kiếm sản phẩm
+- GET `/all` — Lấy danh sách sản phẩm công khai
+- GET `/meta` 🔒 — Lấy metadata sản phẩm (brand, category...)
+- GET `/products` 🔒 — Lấy sản phẩm theo user (người bán)
+- POST `/create` 🔒 — Tạo sản phẩm mới
+- GET `/:productId` — Xem chi tiết sản phẩm
+- PATCH `/:productId` 🔒 — Cập nhật sản phẩm
+- DELETE `/:productId` 🔒 — Xóa sản phẩm
+
+### Cart — `/api/cart` (yêu cầu đăng nhập)
+- GET `/` — Lấy giỏ hàng đang active
+- POST `/` — Thêm sản phẩm / tăng số lượng
+- PUT `/` — Cập nhật số lượng nhiều sản phẩm
+- DELETE `/` — Xóa toàn bộ giỏ hàng
+- DELETE `/:cartItemId` — Xóa 1 sản phẩm khỏi giỏ
+
+### Order — `/api/order` (yêu cầu đăng nhập)
+- POST `/checkout` — Đặt hàng (checkout)
+- GET `/` — Lấy danh sách đơn hàng của user
+
+🔒 = route riêng yêu cầu đăng nhập thêm (ngoài các route đã chung `protectedRoute` ở đầu file)
 
 ## Author
 
