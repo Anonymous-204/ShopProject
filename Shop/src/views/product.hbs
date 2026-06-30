@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sản phẩm | MyShop</title>
+    <style>
+        /* CSS CỦA TRANG PRODUCT - ĐÃ ĐƯỢC SCOPED */
+        #product-page-container {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --bg: #f1f5f9;
+            --border: #cbd5e1;
+            
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 84px; /* Chừa chỗ cho Navbar cố định */
+            box-sizing: border-box;
+            color: #1e293b;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        #product-page-container * { box-sizing: border-box; }
+
+        #product-page-container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        #product-page-container .container {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 25px;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        #product-page-container .box {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        #product-page-container .form-group { margin-bottom: 18px; }
+
+        #product-page-container label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        #product-page-container input,
+        #product-page-container textarea,
+        #product-page-container select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        #product-page-container input:focus, 
+        #product-page-container textarea:focus, 
+        #product-page-container select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        #product-page-container textarea { min-height: 100px; resize: vertical; }
+
+        #product-page-container button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: filter 0.2s;
+        }
+
+        #product-page-container button:hover { filter: brightness(0.9); }
+
+        #product-page-container .primary { background: var(--primary); }
+        #product-page-container .success { background: var(--success); }
+        #product-page-container .warning { background: var(--warning); }
+        #product-page-container .danger { background: var(--danger); }
+        #product-page-container .muted { background: #64748b; }
+
+        #product-page-container .btn-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Card sản phẩm */
+        #product-page-container .card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        #product-page-container .card:hover { transform: translateY(-4px); }
+        #product-page-container .card img { width: 100%; height: 180px; object-fit: cover; background: #f8fafc; }
+
+        #product-page-container .card-body {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #product-page-container .card-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0; }
+        #product-page-container .card-price { font-size: 18px; color: var(--danger); font-weight: 800; }
+        #product-page-container .card-stock {
+            font-size: 12px; font-weight: 600; color: var(--success);
+            background: #f0fdf4; padding: 2px 8px; border-radius: 4px; align-self: flex-start;
+        }
+
+        #product-page-container .card-text {
+            font-size: 13px; color: #64748b; line-height: 1.4;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        #product-page-container .card-spec {
+            font-size: 12px; color: #475569; background: #f8fafc;
+            padding: 8px; border-radius: 6px; border-left: 3px solid var(--primary);
+        }
+
+        #product-page-container .card-actions { display: flex; gap: 6px; margin-top: auto; padding-top: 10px; }
+        #product-page-container .card-actions button { flex: 1; padding: 8px; font-size: 13px; }
+
+        #product-page-container #products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        #product-page-container .empty {
+            border: 2px dashed var(--border);
+            padding: 60px;
+            text-align: center;
+            color: #94a3b8;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="product-page-container">
+    <h2>📦 QUẢN LÝ HỆ THỐNG SẢN PHẨM</h2>
+
+    <div class="container">
+        <div class="box">
+            <h3 id="formTitle" style="margin-top:0; color: var(--primary)">Tạo sản phẩm</h3>
+            <div class="form-group"><label>SKU</label><input id="sku" placeholder="VD: IP15PM-256"></div>
+            <div class="form-group"><label>Tên sản phẩm</label><input id="name" placeholder="Nhập tên sản phẩm..."></div>
+            <div class="form-group"><label>Giá bán (₫)</label><input id="price" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Số lượng tồn kho</label><input id="stock" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Đường dẫn ảnh (URL)</label><input id="image" placeholder="https://..."></div>
+            <div class="form-group"><label>Mô tả ngắn</label><textarea id="description" placeholder="Mô tả tóm tắt..."></textarea></div>
+            <div class="form-group"><label>Thông số kỹ thuật</label><textarea id="specification" placeholder="Màn hình, CPU..."></textarea></div>
+            
+            <div class="form-group"><label>Thương hiệu</label><select id="brand_id"></select></div>
+            <div class="form-group"><label>Danh mục</label><select id="category_id"></select></div>
+
+            <div class="btn-col">
+                <button class="primary" id="previewBtn">Xem trước Card</button>
+                <button class="success" id="updateBtn" style="display:none">Cập nhật thay đổi</button>
+                <button class="muted" id="cancelBtn" style="display:none">Hủy bỏ</button>
+            </div>
+        </div>
+
+        <div class="box">
+            <div style="display:flex;justify-content:space-between;align-items:center; margin-bottom: 20px">
+                <h3 id="rightTitle" style="margin:0">Preview</h3>
+                <button class="muted" id="toggleBtn" style="background: var(--primary)">Danh sách sản phẩm</button>
+            </div>
+            <div id="preview"><div class="empty">Chưa có preview. Nhấn "Xem trước" sau khi nhập liệu.</div></div>
+            <div id="products" style="display:none"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const sku = $('sku'), name = $('name'), price = $('price'), stock = $('stock');
+const image = $('image'), description = $('description'), specification = $('specification');
+const brand_id = $('brand_id'), category_id = $('category_id');
+const preview = $('preview'), previewBtn = $('previewBtn'), updateBtn = $('updateBtn');
+const cancelBtn = $('cancelBtn'), toggleBtn = $('toggleBtn'), products = $('products');
+const rightTitle = $('rightTitle'), formTitle = $('formTitle');
+
+let editingId = null, listMode = false, cachedProducts = [];
+
+/* ================= AUTO REFRESH FETCH ================= */
+async function apiFetch(url, options = {}) {
+  let res = await fetch(url, { ...options, credentials: 'include' });
+
+  if (res.status === 401) {
+    const refresh = await fetch('/auth/refresh', {
+      method: 'POST',
+      credentials: 'include'
+    });
+
+    if (refresh.ok) {
+      res = await fetch(url, { ...options, credentials: 'include' });
+    } else {
+      window.location.href = '/signin';
+      return;
+    }
+  }
+
+  return res;
+}
+
+/* ================= META ================= */
+async function loadMeta() {
+  const res = await apiFetch('/api/product/meta');
+  const data = await res.json();
+
+  brand_id.innerHTML =
+    '<option value="">-- Brand --</option>' +
+    data.brands.map(b => `<option value="${b.brand_id}">${b.brand_name}</option>`).join('');
+
+  category_id.innerHTML =
+    '<option value="">-- Category --</option>' +
+    data.categories.map(c => `<option value="${c.category_id}">${c.category_name}</option>`).join('');
+}
+
+/* ================= FORM ================= */
+function getForm() {
+  return {
+    sku: sku.value.trim(),
+    name: name.value.trim(),
+    price: Number(price.value),
+    stock: Number(stock.value),
+    image: image.value || 'https://via.placeholder.com/300x200',
+    description: description.value || '',
+    specification: specification.value || '',
+    brand_id: Number(brand_id.value) || null,
+    category_id: Number(category_id.value) || null
+  };
+}
+
+function resetForm() {
+  sku.value = name.value = price.value = stock.value = image.value =
+  description.value = specification.value = '';
+  brand_id.value = category_id.value = '';
+  sku.disabled = false;
+  editingId = null;
+  formTitle.textContent = 'Tạo sản phẩm';
+  previewBtn.style.display = 'block';
+  updateBtn.style.display = 'none';
+  cancelBtn.style.display = 'none';
+  preview.innerHTML = '<div class="empty">Chưa có preview</div>';
+}
+
+/* ================= PREVIEW ================= */
+previewBtn.onclick = () => {
+  const p = getForm();
+  if (!p.sku || !p.name) return alert('Thiếu SKU hoặc tên');
+
+  preview.innerHTML = `
+    <div class="card" style="max-width:300px; margin: auto">
+      <img src="${p.image}">
+      <div class="card-body">
+        <p class="card-stock">Kho: ${p.stock}</p>
+        <h4 class="card-title">${p.name}</h4>
+        <div class="card-price">${p.price.toLocaleString()}₫</div>
+        <div class="card-text">${p.description || 'Chưa có mô tả'}</div>
+        ${p.specification ? `<div class="card-spec"><b>Thông số:</b><br>${p.specification}</div>` : ''}
+        <button class="success" style="margin-top:10px; width:100%" onclick="createProduct()">Tạo sản phẩm ngay</button>
+      </div>
+    </div>`;
+};
+
+/* ================= CRUD ================= */
+async function createProduct() {
+  const res = await apiFetch('/api/product/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(getForm())
+  });
+
+  if (!res.ok) return alert('Lỗi tạo');
+  alert('Đã tạo sản phẩm');
+  resetForm();
+  if (listMode) loadProducts();
+}
+
+updateBtn.onclick = async () => {
+  if (!editingId) return;
+  const res = await apiFetch(`/api/product/${editingId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(getForm())
+  });
+
+  if (!res.ok) return alert('Lỗi cập nhật');
+  alert('Đã cập nhật');
+  resetForm();
+  if (listMode) loadProducts();
+};
+
+cancelBtn.onclick = resetForm;
+
+/* ================= LIST ================= */
+async function loadProducts() {
+  const res = await apiFetch('/api/product/products');
+  cachedProducts = await res.json();
+
+  products.innerHTML = cachedProducts.map(p => `
+    <div class="card">
+      <img src="${p.image}">
+      <div class="card-body">
+        <p class="card-stock">Tồn: ${p.stock}</p>
+        <h4 class="card-title">${p.name}</h4>
+        <div class="card-price">${Number(p.price).toLocaleString()}₫</div>
+        <div class="card-text">${p.description || 'Không có mô tả'}</div>
+        <div class="card-actions">
+          <button class="warning" onclick="editProduct(${p.id})">Sửa</button>
+          <button class="danger" onclick="deleteProduct(${p.id})">Xóa</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+window.editProduct = id => {
+  const p = cachedProducts.find(x => x.id === id);
+  if (!p) return;
+  sku.value = p.sku; sku.disabled = true;
+  name.value = p.name; price.value = p.price; stock.value = p.stock;
+  image.value = p.image || ''; description.value = p.description || '';
+  specification.value = p.specification || '';
+  brand_id.value = p.brand_id; category_id.value = p.category_id;
+  editingId = id;
+  formTitle.textContent = 'Chỉnh sửa sản phẩm';
+  previewBtn.style.display = 'none';
+  updateBtn.style.display = 'block';
+  cancelBtn.style.display = 'block';
+};
+
+window.deleteProduct = async id => {
+  if (!confirm('Xóa sản phẩm?')) return;
+  const res = await apiFetch(`/api/product/${id}`, { method: 'DELETE' });
+  if (res.ok) loadProducts();
+};
+
+/* ================= TOGGLE VIEW ================= */
+toggleBtn.onclick = () => {
+  listMode = !listMode;
+  if (listMode) {
+    toggleBtn.textContent = 'Xem Preview';
+    rightTitle.textContent = 'Tất cả sản phẩm';
+    preview.style.display = 'none';
+    products.style.display = 'grid';
+    loadProducts();
+  } else {
+    toggleBtn.textContent = 'Danh sách sản phẩm';
+    rightTitle.textContent = 'Preview';
+    preview.style.display = 'block';
+    products.style.display = 'none';
+  }
+};
+
+/* ================= INIT ================= */
+loadMeta();
+</script>
+
+</body>
+</html>

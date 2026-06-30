@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Thông tin cá nhân | MyShop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { 
+      --bg: #f0f2f5; --card: #ffffff; --primary: #2563eb; 
+      --primary-soft: #dbeafe; --text-main: #1e293b; 
+      --text-muted: #64748b; --border: #e2e8f0; --success: #22c55e;
+    }
+
+    body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; line-height: 1.5; }
+    .container { max-width: 800px; margin: 80px auto; padding: 0 20px; }
+    .card { background: var(--card); border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); overflow: hidden; animation: slideUp 0.5s ease-out; }
+    
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card-banner { height: 120px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+    .card-content { padding: 0 40px 40px 40px; position: relative; }
+    .header-section { display: flex; align-items: flex-end; gap: 24px; margin-top: -60px; margin-bottom: 30px; }
+    .avatar-wrapper { position: relative; padding: 4px; background: #fff; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .avatar { width: 120px; height: 120px; border-radius: 50%; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 800; color: var(--primary); overflow: hidden; }
+    #avatar-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+    /* Edit Styles */
+    .edit-pen { cursor: pointer; color: var(--primary); margin-left: 8px; font-size: 14px; display: none; transition: 0.2s; }
+    .edit-pen:hover { transform: scale(1.2); }
+    .edit-input { padding: 4px 8px; border: 1.5px solid var(--primary); border-radius: 6px; font-family: inherit; font-size: inherit; color: inherit; width: 100%; box-sizing: border-box; }
+    .edit-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+    
+    /* Avatar Edit Tooltip */
+    .avatar-edit-btn { 
+        position: absolute; bottom: 5px; right: 5px; 
+        background: var(--primary); color: white; 
+        width: 32px; height: 32px; border-radius: 50%; 
+        display: none; align-items: center; justify-content: center; 
+        cursor: pointer; border: 2px solid white; font-size: 12px;
+    }
+
+    .user-main h2 { margin: 0; font-size: 26px; font-weight: 800; display: flex; align-items: center; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; padding: 4px 12px; border-radius: 999px; background: #ecfdf5; color: var(--success); font-weight: 600; border: 1px solid #d1fae5; }
+
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--border); }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-item label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+    .info-item .val-wrapper { display: flex; align-items: center; min-height: 24px; font-weight: 600; }
+
+    .bio-section { margin-top: 30px; }
+    .bio-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .bio-content { padding: 20px; background: #f8fafc; border-radius: 12px; font-size: 14px; color: #475569; line-height: 1.7; border: 1px solid var(--border); position: relative; }
+
+    .actions { margin-top: 40px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+    .btn-success { background: var(--success) !important; color: white; }
+    .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
+    .btn:hover { transform: translateY(-2px); filter: brightness(0.9); }
+
+    @media (max-width: 600px) { .header-section { flex-direction: column; align-items: center; text-align: center; } .info-grid { grid-template-columns: 1fr; } .actions { flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-banner"></div>
+      <div class="card-content">
+        <div class="header-section">
+          <div class="avatar-wrapper">
+            <div class="avatar">
+              <img id="avatar-img">
+              <span id="avatar-fallback"></span>
+            </div>
+            <div id="avatar-edit-btn" class="avatar-edit-btn" onclick="editAvatar()">
+                <i class="fa-solid fa-camera"></i>
+            </div>
+          </div>
+          <div class="user-main">
+            <h2>
+                <span id="username-text">Đang tải...</span>
+                <i class="fa-solid fa-pen edit-pen" onclick="toggleEditRow('user_name')"></i>
+            </h2>
+            <div class="status-badge">
+              <i class="fa-solid fa-circle-check"></i>
+              <span id="role">Checking...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label><i class="fa-solid fa-id-badge"></i> User ID</label>
+            <div class="val-wrapper">#<span id="user_id">---</span></div>
+          </div>
+          <div class="info-item">
+            <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+            <div class="val-wrapper">
+                <span id="email-text">---</span>
+                <i class="fa-solid fa-pen edit-pen" onclick="toggleEditRow('email')"></i>
+            </div>
+          </div>
+          <div class="info-item">
+            <label><i class="fa-solid fa-calendar-plus"></i> Ngày tham gia</label>
+            <div class="val-wrapper" id="created_at">---</div>
+          </div>
+          <div class="info-item">
+            <label><i class="fa-solid fa-clock-rotate-left"></i> Cập nhật gần nhất</label>
+            <div class="val-wrapper" id="updated_at">---</div>
+          </div>
+        </div>
+
+        <div class="bio-section">
+          <div class="bio-title">
+            <i class="fa-solid fa-pen-nib" style="color: var(--primary)"></i> Giới thiệu bản thân
+            <i class="fa-solid fa-pen edit-pen" onclick="toggleEditRow('bio')"></i>
+          </div>
+          <div class="bio-content" id="bio-container">
+            <span id="bio-text">Đang tải dữ liệu từ hư không...</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="edit-main-btn" class="btn btn-primary" onclick="handleMainAction()">
+            <i class="fa-solid fa-user-pen"></i> <span id="btn-text">Chỉnh sửa hồ sơ</span>
+          </button>
+          <a href="/change" class="btn btn-outline"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+          <a href="/product" class="btn btn-outline"><i class="fa-solid fa-boxes-stacked"></i> Sản phẩm của tôi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ================= AUTO REFRESH FETCH ================= */
+async function apiFetch(url, options = {}) {
+  let res = await fetch(url, { ...options, credentials: 'include' });
+
+  if (res.status === 401) {
+    // access token hết hạn → xin token mới
+    const refresh = await fetch('/auth/refresh', {
+      method: 'POST',
+      credentials: 'include'
+    });
+
+    if (refresh.ok) {
+      // thử lại request ban đầu
+      res = await fetch(url, { ...options, credentials: 'include' });
+    }
+  }
+
+  return res;
+}
+/* ================= TẢI DỮ LIỆU NGƯỜI DÙNG ================= */
+let isEditingMode = false;
+let currentUserData = {};
+let pendingData = {};
+
+document.addEventListener('DOMContentLoaded', loadProfile);
+
+async function loadProfile() {
+  try {
+    const res = await fetch('/api/user/profile', { credentials: 'include' });
+    if (!res.ok) throw new Error('Unauth');
+
+    const user = await res.json();
+    currentUserData = user.data ?? user;
+    renderUI(currentUserData);
+  } catch {
+    document.getElementById('username-text').textContent = "Chưa đăng nhập";
+  }
+}
+
+function renderUI(data) {
+  const avatarImg = document.getElementById('avatar-img');
+  const avatarFallback = document.getElementById('avatar-fallback');
+
+  if (data.avatar_url) {
+    avatarImg.src = data.avatar_url;
+    avatarImg.style.display = 'block';
+    avatarFallback.style.display = 'none';
+  } else {
+    avatarImg.style.display = 'none';
+    avatarFallback.style.display = 'block';
+    avatarFallback.textContent = data.user_name?.charAt(0).toUpperCase() || '?';
+  }
+
+  const formatDate = s => s ? new Date(s).toLocaleDateString('vi-VN') : '---';
+
+  document.getElementById('username-text').textContent = data.user_name || '';
+  document.getElementById('email-text').textContent = data.email || '';
+  document.getElementById('role').textContent = data.role || 'Thành viên';
+  document.getElementById('user_id').textContent = data.id || '---';
+  document.getElementById('bio-text').textContent = data.bio || 'Chưa có lời giới thiệu.';
+  document.getElementById('created_at').textContent = formatDate(data.created_at);
+  document.getElementById('updated_at').textContent = formatDate(data.updated_at);
+}
+
+/* ================= CHẾ ĐỘ CHỈNH SỬA ================= */
+
+window.handleMainAction = async () => {
+  const btn = document.getElementById('edit-main-btn');
+  const btnText = document.getElementById('btn-text');
+  const pens = document.querySelectorAll('.edit-pen');
+  const avatarEditBtn = document.getElementById('avatar-edit-btn');
+
+  if (!isEditingMode) {
+    isEditingMode = true;
+    btn.classList.add('btn-success');
+    btnText.textContent = "Cập nhật tất cả";
+    pens.forEach(p => p.style.display = 'inline-block');
+    avatarEditBtn.style.display = 'flex';
+    return;
+  }
+
+  if (Object.keys(pendingData).length === 0) {
+    alert("Bạn chưa thay đổi gì.");
+    exitEditMode();
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/user/edit', {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(pendingData)
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message);
+
+    alert("Cập nhật thành công!");
+    pendingData = {};
+    await loadProfile();
+    exitEditMode();
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+function exitEditMode() {
+  isEditingMode = false;
+  document.getElementById('edit-main-btn').classList.remove('btn-success');
+  document.getElementById('btn-text').textContent = "Chỉnh sửa hồ sơ";
+  document.querySelectorAll('.edit-pen').forEach(p => p.style.display = 'none');
+  document.getElementById('avatar-edit-btn').style.display = 'none';
+}
+
+/* ================= CHỈNH SỬA AVATAR ================= */
+
+window.editAvatar = () => {
+    const newUrl = prompt("Nhập URL ảnh đại diện mới:", currentUserData.avatar_url || "");
+    if (newUrl !== null && newUrl !== currentUserData.avatar_url) {
+        // Preview ngay lập tức
+        const avatarImg = document.getElementById('avatar-img');
+        const avatarFallback = document.getElementById('avatar-fallback');
+        
+        if(newUrl.trim() === "") {
+            avatarImg.style.display = 'none';
+            avatarFallback.style.display = 'block';
+        } else {
+            avatarImg.src = newUrl;
+            avatarImg.style.display = 'block';
+            avatarFallback.style.display = 'none';
+        }
+        
+        pendingData.avatar_url = newUrl.trim();
+    }
+};
+
+/* ================= CHỈNH SỬA TỪNG Ô ================= */
+
+window.toggleEditRow = (field) => {
+  const map = {
+    user_name: document.getElementById('username-text'),
+    email: document.getElementById('email-text'),
+    bio: document.getElementById('bio-text')
+  };
+
+  const el = map[field];
+  if (!el) return;
+
+  const oldValue = el.textContent;
+  const input = document.createElement('input');
+  input.className = 'edit-input';
+  input.value = oldValue;
+
+  el.style.display = 'none';
+  el.parentElement.appendChild(input);
+  input.focus();
+
+  input.addEventListener('blur', () => {
+    const newVal = input.value.trim();
+    input.remove();
+    el.style.display = '';
+
+    if (newVal !== oldValue) {
+      el.textContent = newVal;
+      pendingData[field] = newVal;
+    }
+  });
+};
+</script>
+</body>
+</html>
